@@ -3,239 +3,615 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片跳转工具</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-5">
-    <!-- 管理员按钮 -->
-    <button id="adminBtn" class="fixed top-5 right-5 bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-700 transition">管理员</button>
-
-    <!-- 主展示区域 -->
-    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <!-- 文字显示区 -->
-        <div id="textDisplay" class="text-center mb-4 text-2xl text-black">默认展示文字</div>
-        <!-- 图片跳转区 -->
-        <a id="imageLink" href="https://www.baidu.com" target="_blank" class="block text-center">
-            <img id="displayImage" src="https://picsum.photos/600/400" alt="跳转图片" class="mx-auto w-96 h-64 object-cover rounded-md cursor-pointer">
-        </a>
-    </div>
-
-    <!-- 管理员密码弹窗 -->
-    <div id="passwordModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg w-80">
-            <h3 class="text-xl font-bold mb-4 text-center">管理员验证</h3>
-            <input type="password" id="adminPassword" placeholder="输入管理员密码" class="w-full p-2 border border-gray-300 rounded-md mb-4">
-            <div class="flex gap-3">
-                <button id="verifyBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">验证</button>
-                <button id="closePasswordModal" class="flex-1 bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400 transition">取消</button>
-            </div>
-            <p id="passwordError" class="text-red-500 text-center mt-3 hidden">密码错误，请重试</p>
-        </div>
-    </div>
-
-    <!-- 编辑弹窗 -->
-    <div id="editModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-bold mb-4 text-center">编辑设置</h3>
+    <title>图片链接管理平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            position: relative;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .admin-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #7f8c8d;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        
+        .admin-toggle:hover {
+            background: #3498db;
+            transform: scale(1.1);
+        }
+        
+        .text-area {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 120px;
+        }
+        
+        .image-container {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .image-container img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .admin-panel {
+            background: linear-gradient(to bottom, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .admin-panel h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-success {
+            background: #2ecc71;
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .text-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .text-controls select, .text-controls input {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .status-message {
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .panel-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .panel-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .panel-section h3 {
+            margin-bottom: 15px;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .login-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
             
-            <!-- 文字设置 -->
-            <div class="mb-5">
-                <h4 class="font-semibold mb-2">文字设置</h4>
-                <input type="text" id="editText" placeholder="输入显示文字" class="w-full p-2 border border-gray-300 rounded-md mb-2">
-                <div class="flex gap-2 mb-2">
-                    <input type="number" id="fontSize" min="12" max="48" placeholder="字体大小(px)" class="flex-1 p-2 border border-gray-300 rounded-md">
-                    <input type="color" id="fontColor" class="w-10 h-10 p-0 border-0 rounded-md">
+            .text-controls {
+                flex-direction: column;
+            }
+            
+            .text-controls select, .text-controls input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-image"></i> 图片链接管理平台</h1>
+        </header>
+        
+        <div class="admin-toggle" id="adminToggle" title="管理员设置">
+            <i class="fas fa-cog"></i>
+        </div>
+        
+        <div class="text-area" id="textArea">
+            <!-- 这里将显示可编辑的文本 -->
+        </div>
+        
+        <div class="image-container">
+            <a id="imageLink" href="#" target="_blank">
+                <img id="displayImage" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="可点击图片">
+            </a>
+        </div>
+        
+        <div class="admin-panel" id="adminPanel">
+            <div id="loginPanel" class="login-panel">
+                <h3><i class="fas fa-lock"></i> 管理员登录</h3>
+                <div class="form-group">
+                    <label for="loginPassword">密码:</label>
+                    <input type="password" id="loginPassword" placeholder="请输入管理员密码">
+                </div>
+                <div style="text-align: center;">
+                    <button id="loginBtn" class="btn-success"><i class="fas fa-sign-in-alt"></i> 登录</button>
                 </div>
             </div>
-
-            <!-- 图片设置 -->
-            <div class="mb-5">
-                <h4 class="font-semibold mb-2">图片设置</h4>
-                <input type="file" id="imageUpload" accept="image/*" class="w-full p-2 border border-gray-300 rounded-md mb-2">
-                <div class="flex gap-2 mb-2">
-                    <input type="number" id="imgWidth" min="100" max="800" placeholder="图片宽度(px)" class="flex-1 p-2 border border-gray-300 rounded-md">
-                    <input type="number" id="imgHeight" min="100" max="800" placeholder="图片高度(px)" class="flex-1 p-2 border border-gray-300 rounded-md">
+            
+            <div id="adminControls" class="hidden">
+                <h2><i class="fas fa-cogs"></i> 管理员控制面板</h2>
+                
+                <div class="panel-grid">
+                    <div class="panel-section">
+                        <h3><i class="fas fa-edit"></i> 文本设置</h3>
+                        
+                        <div class="form-group">
+                            <label for="textContent">文本内容:</label>
+                            <textarea id="textContent" rows="4"></textarea>
+                        </div>
+                        
+                        <div class="text-controls">
+                            <div class="form-group">
+                                <label for="fontSize">字体大小:</label>
+                                <select id="fontSize">
+                                    <option value="16px">小号</option>
+                                    <option value="20px" selected>中号</option>
+                                    <option value="24px">大号</option>
+                                    <option value="28px">特大号</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="fontColor">字体颜色:</label>
+                                <select id="fontColor">
+                                    <option value="#333" selected>黑色</option>
+                                    <option value="#e74c3c">红色</option>
+                                    <option value="#3498db">蓝色</option>
+                                    <option value="#2ecc71">绿色</option>
+                                    <option value="#f39c12">橙色</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="customColor">自定义颜色:</label>
+                                <input type="color" id="customColor" value="#333333">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <h3><i class="fas fa-image"></i> 图片设置</h3>
+                        
+                        <div class="form-group">
+                            <label for="imageUrl">图片URL:</label>
+                            <input type="text" id="imageUrl" placeholder="输入图片URL或上传本地图片">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="localImage">上传本地图片:</label>
+                            <input type="file" id="localImage" accept="image/*">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="linkUrl">链接地址:</label>
+                            <input type="text" id="linkUrl" placeholder="输入点击图片后跳转的链接">
+                        </div>
+                    </div>
                 </div>
-                <img id="previewImage" alt="预览图片" class="w-full h-40 object-cover rounded-md mb-2 hidden">
+                
+                <div class="form-group" style="text-align: center; margin-top: 20px;">
+                    <button id="saveChanges" class="btn-success"><i class="fas fa-save"></i> 保存更改</button>
+                    <button id="changePasswordBtn"><i class="fas fa-key"></i> 修改密码</button>
+                    <button class="btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> 退出管理员</button>
+                </div>
+                
+                <div id="changePasswordPanel" class="hidden" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <h3><i class="fas fa-lock"></i> 修改密码</h3>
+                    <div class="form-group">
+                        <label for="oldPassword">旧密码:</label>
+                        <input type="password" id="oldPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码:</label>
+                        <input type="password" id="newPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码:</label>
+                        <input type="password" id="confirmPassword">
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="updatePassword" class="btn-success"><i class="fas fa-check"></i> 更新密码</button>
+                        <button id="cancelPasswordChange"><i class="fas fa-times"></i> 取消</button>
+                    </div>
+                </div>
             </div>
-
-            <!-- 跳转设置 -->
-            <div class="mb-5">
-                <h4 class="font-semibold mb-2">跳转设置</h4>
-                <input type="url" id="targetUrl" placeholder="输入跳转网址" class="w-full p-2 border border-gray-300 rounded-md">
-            </div>
-
-            <!-- 修改密码 -->
-            <div class="mb-5 border-t pt-4">
-                <h4 class="font-semibold mb-2">修改密码</h4>
-                <input type="password" id="oldPwd" placeholder="输入旧密码" class="w-full p-2 border border-gray-300 rounded-md mb-2">
-                <input type="password" id="newPwd" placeholder="输入新密码(≥6位)" class="w-full p-2 border border-gray-300 rounded-md mb-2">
-                <input type="password" id="confirmPwd" placeholder="确认新密码" class="w-full p-2 border border-gray-300 rounded-md">
-                <p id="pwdError" class="text-red-500 text-sm mt-2 hidden">密码不一致或旧密码错误</p>
-                <p id="pwdSuccess" class="text-green-500 text-sm mt-2 hidden">密码修改成功</p>
-            </div>
-
-            <div class="flex gap-3">
-                <button id="saveBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">保存设置</button>
-                <button id="closeEditModal" class="flex-1 bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400 transition">取消</button>
-            </div>
+        </div>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <div class="footer">
+            <p>© 2023 图片链接管理平台 | 所有用户将看到相同的内容</p>
         </div>
     </div>
 
     <script>
-        // 初始数据（本地存储）
-        let appData = JSON.parse(localStorage.getItem('imageLinkApp')) || {
-            text: '默认展示文字',
-            fontSize: 24,
-            fontColor: '#000000',
-            imageUrl: 'https://picsum.photos/600/400',
-            imgWidth: 600,
-            imgHeight: 400,
-            targetUrl: 'https://www.baidu.com',
-            password: 'admin123'
+        // 默认数据
+        const defaultData = {
+            text: "欢迎来到我们的图片链接管理平台！您可以点击下方图片跳转到指定网站。管理员可以编辑此文本内容、上传图片和设置链接。",
+            fontSize: "20px",
+            fontColor: "#333",
+            imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+            linkUrl: "https://example.com",
+            adminPassword: "admin123"
         };
 
+        // 从localStorage加载数据或使用默认值
+        let siteData = JSON.parse(localStorage.getItem('siteData')) || defaultData;
+        let isAdmin = false;
+
         // DOM元素
-        const adminBtn = document.getElementById('adminBtn');
-        const passwordModal = document.getElementById('passwordModal');
-        const editModal = document.getElementById('editModal');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const closePasswordModal = document.getElementById('closePasswordModal');
-        const closeEditModal = document.getElementById('closeEditModal');
-        const saveBtn = document.getElementById('saveBtn');
-        const adminPassword = document.getElementById('adminPassword');
-        const passwordError = document.getElementById('passwordError');
-        const textDisplay = document.getElementById('textDisplay');
-        const displayImage = document.getElementById('displayImage');
-        const imageLink = document.getElementById('imageLink');
-        const editText = document.getElementById('editText');
+        const textArea = document.getElementById('textArea');
+        const textContent = document.getElementById('textContent');
         const fontSize = document.getElementById('fontSize');
         const fontColor = document.getElementById('fontColor');
-        const imageUpload = document.getElementById('imageUpload');
-        const imgWidth = document.getElementById('imgWidth');
-        const imgHeight = document.getElementById('imgHeight');
-        const previewImage = document.getElementById('previewImage');
-        const targetUrl = document.getElementById('targetUrl');
-        const oldPwd = document.getElementById('oldPwd');
-        const newPwd = document.getElementById('newPwd');
-        const confirmPwd = document.getElementById('confirmPwd');
-        const pwdError = document.getElementById('pwdError');
-        const pwdSuccess = document.getElementById('pwdSuccess');
+        const customColor = document.getElementById('customColor');
+        const imageUrl = document.getElementById('imageUrl');
+        const localImage = document.getElementById('localImage');
+        const linkUrl = document.getElementById('linkUrl');
+        const displayImage = document.getElementById('displayImage');
+        const imageLink = document.getElementById('imageLink');
+        const adminToggle = document.getElementById('adminToggle');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginPanel = document.getElementById('loginPanel');
+        const adminControls = document.getElementById('adminControls');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const saveChanges = document.getElementById('saveChanges');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const changePasswordPanel = document.getElementById('changePasswordPanel');
+        const updatePassword = document.getElementById('updatePassword');
+        const cancelPasswordChange = document.getElementById('cancelPasswordChange');
+        const statusMessage = document.getElementById('statusMessage');
 
         // 初始化页面
         function initPage() {
-            textDisplay.textContent = appData.text;
-            textDisplay.style.fontSize = `${appData.fontSize}px`;
-            textDisplay.style.color = appData.fontColor;
-            displayImage.src = appData.imageUrl;
-            displayImage.style.width = `${appData.imgWidth}px`;
-            displayImage.style.height = `${appData.imgHeight}px`;
-            imageLink.href = appData.targetUrl;
+            updateTextArea();
+            updateImage();
+            
+            // 设置表单值
+            textContent.value = siteData.text;
+            fontSize.value = siteData.fontSize;
+            fontColor.value = siteData.fontColor;
+            customColor.value = siteData.fontColor;
+            imageUrl.value = siteData.imageUrl;
+            linkUrl.value = siteData.linkUrl;
         }
 
-        // 初始化编辑表单
-        function initEditForm() {
-            editText.value = appData.text;
-            fontSize.value = appData.fontSize;
-            fontColor.value = appData.fontColor;
-            imgWidth.value = appData.imgWidth;
-            imgHeight.value = appData.imgHeight;
-            targetUrl.value = appData.targetUrl;
-            previewImage.src = appData.imageUrl;
-            previewImage.classList.remove('hidden');
-            // 重置密码相关
-            oldPwd.value = '';
-            newPwd.value = '';
-            confirmPwd.value = '';
-            pwdError.classList.add('hidden');
-            pwdSuccess.classList.add('hidden');
+        // 更新文本区域
+        function updateTextArea() {
+            textArea.innerHTML = `<div style="font-size: ${siteData.fontSize}; color: ${siteData.fontColor}; line-height: 1.8;">${siteData.text}</div>`;
         }
 
-        // 保存数据到本地存储
-        function saveData() {
-            localStorage.setItem('imageLinkApp', JSON.stringify(appData));
+        // 更新图片
+        function updateImage() {
+            displayImage.src = siteData.imageUrl;
+            imageLink.href = siteData.linkUrl;
         }
 
-        // 事件监听
-        adminBtn.addEventListener('click', () => {
-            passwordModal.classList.remove('hidden');
-            adminPassword.value = '';
-            passwordError.classList.add('hidden');
-        });
+        // 显示状态消息
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            setTimeout(() => {
+                statusMessage.textContent = '';
+                statusMessage.className = 'status-message';
+            }, 3000);
+        }
 
-        closePasswordModal.addEventListener('click', () => {
-            passwordModal.classList.add('hidden');
-        });
-
-        closeEditModal.addEventListener('click', () => {
-            editModal.classList.add('hidden');
-        });
-
-        // 密码验证
-        verifyBtn.addEventListener('click', () => {
-            if (adminPassword.value === appData.password) {
-                passwordModal.classList.add('hidden');
-                editModal.classList.remove('hidden');
-                initEditForm();
+        // 管理员登录
+        adminToggle.addEventListener('click', () => {
+            if (adminPanel.style.display === 'block') {
+                adminPanel.style.display = 'none';
             } else {
-                passwordError.classList.remove('hidden');
+                adminPanel.style.display = 'block';
+                if (!isAdmin) {
+                    loginPanel.style.display = 'block';
+                    adminControls.style.display = 'none';
+                    loginPassword.focus();
+                } else {
+                    loginPanel.style.display = 'none';
+                    adminControls.style.display = 'block';
+                }
             }
         });
 
-        // 图片上传预览
-        imageUpload.addEventListener('change', (e) => {
+        loginBtn.addEventListener('click', () => {
+            const password = loginPassword.value;
+            if (password === siteData.adminPassword) {
+                isAdmin = true;
+                loginPanel.style.display = 'none';
+                adminControls.style.display = 'block';
+                loginPassword.value = '';
+                showStatus('管理员登录成功', 'success');
+            } else {
+                showStatus('密码错误', 'error');
+                loginPassword.value = '';
+                loginPassword.focus();
+            }
+        });
+
+        // 保存更改
+        saveChanges.addEventListener('click', () => {
+            if (!isAdmin) {
+                showStatus('请先登录管理员', 'error');
+                return;
+            }
+            
+            siteData.text = textContent.value;
+            siteData.fontSize = fontSize.value;
+            siteData.fontColor = customColor.value;
+            siteData.imageUrl = imageUrl.value;
+            siteData.linkUrl = linkUrl.value;
+            
+            localStorage.setItem('siteData', JSON.stringify(siteData));
+            
+            updateTextArea();
+            updateImage();
+            
+            showStatus('更改已保存，所有用户将看到更新后的内容', 'success');
+        });
+
+        // 上传本地图片
+        localImage.addEventListener('change', (e) => {
+            if (!isAdmin) {
+                showStatus('请先登录管理员', 'error');
+                return;
+            }
+            
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    previewImage.src = event.target.result;
-                    previewImage.classList.remove('hidden');
+                    siteData.imageUrl = event.target.result;
+                    imageUrl.value = event.target.result;
+                    updateImage();
+                    showStatus('图片已上传', 'success');
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // 保存设置
-        saveBtn.addEventListener('click', () => {
-            // 更新基础设置
-            appData.text = editText.value.trim() || appData.text;
-            appData.fontSize = parseInt(fontSize.value) || appData.fontSize;
-            appData.fontColor = fontColor.value || appData.fontColor;
-            appData.imgWidth = parseInt(imgWidth.value) || appData.imgWidth;
-            appData.imgHeight = parseInt(imgHeight.value) || appData.imgHeight;
-            appData.targetUrl = targetUrl.value.trim() || appData.targetUrl;
-
-            // 更新图片（如果有新上传）
-            if (previewImage.src !== appData.imageUrl && previewImage.src) {
-                appData.imageUrl = previewImage.src;
-            }
-
-            // 处理密码修改
-            if (oldPwd.value) {
-                if (oldPwd.value !== appData.password) {
-                    pwdError.classList.remove('hidden');
-                    pwdSuccess.classList.add('hidden');
-                    return;
-                }
-                if (newPwd.value !== confirmPwd.value || newPwd.value.length < 6) {
-                    pwdError.classList.remove('hidden');
-                    pwdSuccess.classList.add('hidden');
-                    return;
-                }
-                appData.password = newPwd.value;
-                pwdSuccess.classList.remove('hidden');
-                pwdError.classList.add('hidden');
-            }
-
-            // 保存并刷新页面
-            saveData();
-            initPage();
-            setTimeout(() => {
-                editModal.classList.add('hidden');
-            }, 1000);
+        // 字体颜色选择
+        fontColor.addEventListener('change', () => {
+            customColor.value = fontColor.value;
         });
 
-        // 初始化
+        customColor.addEventListener('change', () => {
+            fontColor.value = customColor.value;
+        });
+
+        // 修改密码
+        changePasswordBtn.addEventListener('click', () => {
+            changePasswordPanel.classList.remove('hidden');
+        });
+
+        cancelPasswordChange.addEventListener('click', () => {
+            changePasswordPanel.classList.add('hidden');
+        });
+
+        updatePassword.addEventListener('click', () => {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (oldPassword !== siteData.adminPassword) {
+                showStatus('旧密码错误', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showStatus('新密码不匹配', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                showStatus('密码长度至少4位', 'error');
+                return;
+            }
+            
+            siteData.adminPassword = newPassword;
+            localStorage.setItem('siteData', JSON.stringify(siteData));
+            
+            changePasswordPanel.classList.add('hidden');
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            showStatus('密码已更新', 'success');
+        });
+
+        // 退出管理员
+        logoutBtn.addEventListener('click', () => {
+            isAdmin = false;
+            adminPanel.style.display = 'none';
+            showStatus('已退出管理员模式', 'success');
+        });
+
+        // 初始化页面
         initPage();
     </script>
 </body>
