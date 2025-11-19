@@ -1,0 +1,7 @@
+image-link-manager/
+├── package.json
+├── server.js
+├── siteData.json (自动生成)
+└── public/
+    ├── index.html
+    └── uploads/ (自动生成)

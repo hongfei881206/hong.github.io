@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片链接管理平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            position: relative;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .admin-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #7f8c8d;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        
+        .admin-toggle:hover {
+            background: #3498db;
+            transform: scale(1.1);
+        }
+        
+        .text-area {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 120px;
+        }
+        
+        .image-container {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .image-container img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .admin-panel {
+            background: linear-gradient(to bottom, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .admin-panel h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-success {
+            background: #2ecc71;
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .text-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .text-controls select, .text-controls input {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .status-message {
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .panel-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .panel-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .panel-section h3 {
+            margin-bottom: 15px;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 8px;
+        }
+        
+        .login-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .upload-status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .text-controls {
+                flex-direction: column;
+            }
+            
+            .text-controls select, .text-controls input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-image"></i> 图片链接管理平台</h1>
+        </header>
+        
+        <div class="admin-toggle" id="adminToggle" title="管理员设置">
+            <i class="fas fa-cog"></i>
+        </div>
+        
+        <div class="text-area" id="textArea">
+            <!-- 这里将显示可编辑的文本 -->
+        </div>
+        
+        <div class="image-container">
+            <a id="imageLink" href="#" target="_blank">
+                <img id="displayImage" src="" alt="可点击图片">
+            </a>
+        </div>
+        
+        <div class="admin-panel" id="adminPanel">
+            <div id="loginPanel" class="login-panel">
+                <h3><i class="fas fa-lock"></i> 管理员登录</h3>
+                <div class="form-group">
+                    <label for="loginPassword">密码:</label>
+                    <input type="password" id="loginPassword" placeholder="请输入管理员密码">
+                </div>
+                <div style="text-align: center;">
+                    <button id="loginBtn" class="btn-success"><i class="fas fa-sign-in-alt"></i> 登录</button>
+                </div>
+            </div>
+            
+            <div id="adminControls" class="hidden">
+                <h2><i class="fas fa-cogs"></i> 管理员控制面板</h2>
+                
+                <div class="panel-grid">
+                    <div class="panel-section">
+                        <h3><i class="fas fa-edit"></i> 文本设置</h3>
+                        
+                        <div class="form-group">
+                            <label for="textContent">文本内容:</label>
+                            <textarea id="textContent" rows="4"></textarea>
+                        </div>
+                        
+                        <div class="text-controls">
+                            <div class="form-group">
+                                <label for="fontSize">字体大小:</label>
+                                <select id="fontSize">
+                                    <option value="16px">小号</option>
+                                    <option value="20px" selected>中号</option>
+                                    <option value="24px">大号</option>
+                                    <option value="28px">特大号</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="fontColor">字体颜色:</label>
+                                <select id="fontColor">
+                                    <option value="#333" selected>黑色</option>
+                                    <option value="#e74c3c">红色</option>
+                                    <option value="#3498db">蓝色</option>
+                                    <option value="#2ecc71">绿色</option>
+                                    <option value="#f39c12">橙色</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="customColor">自定义颜色:</label>
+                                <input type="color" id="customColor" value="#333333">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <h3><i class="fas fa-image"></i> 图片设置</h3>
+                        
+                        <div class="form-group">
+                            <label for="imageUrl">图片URL:</label>
+                            <input type="text" id="imageUrl" placeholder="输入图片URL或上传本地图片">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="localImage">上传本地图片:</label>
+                            <input type="file" id="localImage" accept="image/*">
+                            <div class="upload-status" id="uploadStatus"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="linkUrl">链接地址:</label>
+                            <input type="text" id="linkUrl" placeholder="输入点击图片后跳转的链接">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="text-align: center; margin-top: 20px;">
+                    <button id="saveChanges" class="btn-success"><i class="fas fa-save"></i> 保存更改</button>
+                    <button id="changePasswordBtn"><i class="fas fa-key"></i> 修改密码</button>
+                    <button class="btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> 退出管理员</button>
+                </div>
+                
+                <div id="changePasswordPanel" class="hidden" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <h3><i class="fas fa-lock"></i> 修改密码</h3>
+                    <div class="form-group">
+                        <label for="oldPassword">旧密码:</label>
+                        <input type="password" id="oldPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码:</label>
+                        <input type="password" id="newPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码:</label>
+                        <input type="password" id="confirmPassword">
+                    </div>
+                    <div style="text-align: center;">
+                        <button id="updatePassword" class="btn-success"><i class="fas fa-check"></i> 更新密码</button>
+                        <button id="cancelPasswordChange"><i class="fas fa-times"></i> 取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <div class="footer">
+            <p>© 2023 图片链接管理平台 | 所有用户将看到相同的内容</p>
+            <p id="serverStatus">正在连接服务器...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let siteData = {};
+        let isAdmin = false;
+
+        // DOM元素
+        const textArea = document.getElementById('textArea');
+        const textContent = document.getElementById('textContent');
+        const fontSize = document.getElementById('fontSize');
+        const fontColor = document.getElementById('fontColor');
+        const customColor = document.getElementById('customColor');
+        const imageUrl = document.getElementById('imageUrl');
+        const localImage = document.getElementById('localImage');
+        const linkUrl = document.getElementById('linkUrl');
+        const displayImage = document.getElementById('displayImage');
+        const imageLink = document.getElementById('imageLink');
+        const adminToggle = document.getElementById('adminToggle');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginPanel = document.getElementById('loginPanel');
+        const adminControls = document.getElementById('adminControls');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const saveChanges = document.getElementById('saveChanges');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const changePasswordPanel = document.getElementById('changePasswordPanel');
+        const updatePassword = document.getElementById('updatePassword');
+        const cancelPasswordChange = document.getElementById('cancelPasswordChange');
+        const statusMessage = document.getElementById('statusMessage');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const serverStatus = document.getElementById('serverStatus');
+
+        // 从服务器加载数据
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_BASE}/data`);
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                showStatus('无法连接到服务器', 'error');
+            }
+            return null;
+        }
+
+        // 保存数据到服务器
+        async function saveData(data) {
+            try {
+                const response = await fetch(`${API_BASE}/data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('保存数据失败:', error);
+                return { success: false, message: '网络错误' };
+            }
+        }
+
+        // 上传图片
+        async function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('上传图片失败:', error);
+                return { success: false, message: '上传失败' };
+            }
+        }
+
+        // 初始化页面
+        async function initPage() {
+            siteData = await loadData();
+            if (!siteData) {
+                showStatus('无法加载数据，请检查服务器连接', 'error');
+                serverStatus.innerHTML = '<span style="color: #e74c3c;">❌ 服务器连接失败</span>';
+                return;
+            }
+            
+            updateTextArea();
+            updateImage();
+            
+            // 设置表单值
+            textContent.value = siteData.text;
+            fontSize.value = siteData.fontSize;
+            fontColor.value = siteData.fontColor;
+            customColor.value = siteData.fontColor;
+            imageUrl.value = siteData.imageUrl;
+            linkUrl.value = siteData.linkUrl;
+            
+            serverStatus.innerHTML = '<span style="color: #2ecc71;">✅ 服务器连接正常</span>';
+        }
+
+        // 更新文本区域
+        function updateTextArea() {
+            textArea.innerHTML = `<div style="font-size: ${siteData.fontSize}; color: ${siteData.fontColor}; line-height: 1.8;">${siteData.text}</div>`;
+        }
+
+        // 更新图片
+        function updateImage() {
+            // 如果是相对路径，添加当前域名
+            let imageSrc = siteData.imageUrl;
+            if (imageSrc.startsWith('/')) {
+                imageSrc = window.location.origin + imageSrc;
+            }
+            displayImage.src = imageSrc;
+            imageLink.href = siteData.linkUrl;
+        }
+
+        // 显示状态消息
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            setTimeout(() => {
+                statusMessage.textContent = '';
+                statusMessage.className = 'status-message';
+            }, 3000);
+        }
+
+        // 管理员登录
+        adminToggle.addEventListener('click', () => {
+            if (adminPanel.style.display === 'block') {
+                adminPanel.style.display = 'none';
+            } else {
+                adminPanel.style.display = 'block';
+                if (!isAdmin) {
+                    loginPanel.style.display = 'block';
+                    adminControls.style.display = 'none';
+                    loginPassword.focus();
+                } else {
+                    loginPanel.style.display = 'none';
+                    adminControls.style.display = 'block';
+                }
+            }
+        });
+
+        loginBtn.addEventListener('click', () => {
+            const password = loginPassword.value;
+            if (password === siteData.adminPassword) {
+                isAdmin = true;
+                loginPanel.style.display = 'none';
+                adminControls.style.display = 'block';
+                loginPassword.value = '';
+                showStatus('管理员登录成功', 'success');
+            } else {
+                showStatus('密码错误', 'error');
+                loginPassword.value = '';
+                loginPassword.focus();
+            }
+        });
+
+        // 保存更改
+        saveChanges.addEventListener('click', async () => {
+            if (!isAdmin) {
+                showStatus('请先登录管理员', 'error');
+                return;
+            }
+            
+            siteData.text = textContent.value;
+            siteData.fontSize = fontSize.value;
+            siteData.fontColor = customColor.value;
+            siteData.imageUrl = imageUrl.value;
+            siteData.linkUrl = linkUrl.value;
+            
+            const result = await saveData(siteData);
+            if (result.success) {
+                updateTextArea();
+                updateImage();
+                showStatus('更改已保存，所有用户将看到更新后的内容', 'success');
+            } else {
+                showStatus('保存失败: ' + result.message, 'error');
+            }
+        });
+
+        // 上传本地图片
+        localImage.addEventListener('change', async (e) => {
+            if (!isAdmin) {
+                showStatus('请先登录管理员', 'error');
+                return;
+            }
+            
+            const file = e.target.files[0];
+            if (file) {
+                uploadStatus.textContent = '上传中...';
+                uploadStatus.style.color = '#f39c12';
+                
+                const result = await uploadImage(file);
+                if (result.success) {
+                    siteData.imageUrl = result.imageUrl;
+                    imageUrl.value = result.imageUrl;
+                    updateImage();
+                    uploadStatus.textContent = '上传成功！';
+                    uploadStatus.style.color = '#2ecc71';
+                    showStatus('图片已上传', 'success');
+                } else {
+                    uploadStatus.textContent = '上传失败: ' + result.message;
+                    uploadStatus.style.color = '#e74c3c';
+                    showStatus('上传失败: ' + result.message, 'error');
+                }
+                
+                // 3秒后清除状态
+                setTimeout(() => {
+                    uploadStatus.textContent = '';
+                }, 3000);
+            }
+        });
+
+        // 字体颜色选择
+        fontColor.addEventListener('change', () => {
+            customColor.value = fontColor.value;
+        });
+
+        customColor.addEventListener('change', () => {
+            fontColor.value = customColor.value;
+        });
+
+        // 修改密码
+        changePasswordBtn.addEventListener('click', () => {
+            changePasswordPanel.classList.remove('hidden');
+        });
+
+        cancelPasswordChange.addEventListener('click', () => {
+            changePasswordPanel.classList.add('hidden');
+        });
+
+        updatePassword.addEventListener('click', async () => {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (oldPassword !== siteData.adminPassword) {
+                showStatus('旧密码错误', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showStatus('新密码不匹配', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                showStatus('密码长度至少4位', 'error');
+                return;
+            }
+            
+            siteData.adminPassword = newPassword;
+            const result = await saveData(siteData);
+            if (result.success) {
+                changePasswordPanel.classList.add('hidden');
+                document.getElementById('oldPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                showStatus('密码已更新', 'success');
+            } else {
+                showStatus('密码更新失败: ' + result.message, 'error');
+            }
+        });
+
+        // 退出管理员
+        logoutBtn.addEventListener('click', () => {
+            isAdmin = false;
+            adminPanel.style.display = 'none';
+            showStatus('已退出管理员模式', 'success');
+        });
+
+        // 初始化页面
+        initPage();
+    </script>
+</body>
+</html>
