@@ -3,386 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自定义图片链接</title>
+    <title>一键跳转页面</title>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Microsoft YaHei', sans-serif;
+            box-sizing: border-box;
         }
         body {
-            background-color: #f5f5f5;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        h1 {
+            background-color: #f8f9fa;
             text-align: center;
-            color: #333;
-            margin-bottom: 20px;
+            padding: 30px 20px;
+            font-family: "Microsoft YaHei", sans-serif;
         }
-        .instructions {
-            background-color: #f0f8ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4a90e2;
+        /* 密码验证区域样式 */
+        .auth-panel {
+            margin: 40px auto 20px;
+            max-width: 450px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
         }
-        .instructions h2 {
-            color: #4a90e2;
-            margin-bottom: 10px;
-        }
-        .instructions ol {
-            margin-left: 20px;
-        }
-        .instructions li {
-            margin-bottom: 8px;
-        }
-        .privacy-notice {
-            background-color: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border-left: 4px solid #ffc107;
-        }
-        .privacy-notice h2 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        .image-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .clickable-image {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .clickable-image:hover {
-            transform: scale(1.02);
-        }
-        .customization-form {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
-        input[type="text"], input[type="url"], input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .auth-panel input {
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            width: 250px;
             font-size: 16px;
         }
-        button {
-            background-color: #4a90e2;
+        .auth-panel button {
+            padding: 10px 20px;
+            background-color: #28a745;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            margin-right: 10px;
             transition: background-color 0.3s;
         }
-        button:hover {
-            background-color: #3a7bc8;
+        .auth-panel button:hover {
+            background-color: #218838;
+        }
+        /* 自定义设置面板样式 */
+        .setting-panel {
+            max-width: 650px;
+            margin: 25px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            display: none; /* 默认隐藏 */
+            gap: 20px;
+            flex-direction: column;
+        }
+        .setting-panel input {
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .setting-btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .setting-btn-group button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .confirm-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .confirm-btn:hover {
+            background-color: #0069d9;
         }
         .reset-btn {
-            background-color: #e74c3c;
+            background-color: #dc3545;
+            color: white;
         }
         .reset-btn:hover {
-            background-color: #c0392b;
+            background-color: #c82333;
         }
-        .status-message {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .current-settings {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-        }
-        .tabs {
-            display: flex;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        .tab {
-            padding: 10px 20px;
+        /* 跳转图片样式 */
+        .jump-img {
+            max-width: 75%;
+            height: auto;
+            margin: 40px auto;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s;
         }
-        .tab.active {
-            border-bottom: 3px solid #4a90e2;
-            font-weight: bold;
-            color: #4a90e2;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
+        .jump-img:hover {
+            transform: scale(1.02);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>自定义图片链接</h1>
-        
-        <div class="instructions">
-            <h2>使用说明</h2>
-            <ol>
-                <li>点击下方图片可以跳转到设置的网站</li>
-                <li>在下方表单中，可以选择上传本地图片或输入网络图片链接</li>
-                <li>输入目标网站链接</li>
-                <li>点击"更新设置"按钮保存更改</li>
-                <li>您的设置会自动保存，下次打开网页仍然有效</li>
-                <li>点击"重置"按钮可以恢复默认设置</li>
-            </ol>
-        </div>
-        
-        <div class="privacy-notice">
-            <h2>隐私说明</h2>
-            <p><strong>重要提示：</strong>您的自定义设置（图片和链接）仅保存在<strong>您自己的浏览器</strong>中，其他人无法看到。</p>
-            <p>如果您将此网页分享给他人，他们只会看到默认设置，不会看到您的个人设置。</p>
-        </div>
-        
-        <div class="image-container">
-            <a id="image-link" href="https://www.baidu.com" target="_blank">
-                <img id="clickable-image" src="https://via.placeholder.com/600x300/4a90e2/ffffff?text=点击我跳转到百度" alt="可点击的图片" class="clickable-image">
-            </a>
-        </div>
-        
-        <div class="customization-form">
-            <h2>自定义设置</h2>
-            
-            <div class="tabs">
-                <div class="tab active" data-tab="upload">上传本地图片</div>
-                <div class="tab" data-tab="url">使用网络图片</div>
-            </div>
-            
-            <div class="tab-content active" id="upload-tab">
-                <div class="form-group">
-                    <label for="image-upload">选择本地图片:</label>
-                    <input type="file" id="image-upload" accept="image/*">
-                </div>
-            </div>
-            
-            <div class="tab-content" id="url-tab">
-                <div class="form-group">
-                    <label for="image-url">图片链接:</label>
-                    <input type="url" id="image-url" placeholder="请输入图片的网址">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="target-url">目标网站链接:</label>
-                <input type="url" id="target-url" placeholder="请输入要跳转的网站网址">
-            </div>
-            
-            <button id="update-btn">更新设置</button>
-            <button id="reset-btn" class="reset-btn">重置</button>
-            <div id="status-message" class="status-message"></div>
-        </div>
-        
-        <div class="current-settings">
-            <h3>当前设置</h3>
-            <p><strong>图片链接:</strong> <span id="current-image-url">https://via.placeholder.com/600x300/4a90e2/ffffff?text=点击我跳转到百度</span></p>
-            <p><strong>目标网站:</strong> <span id="current-target-url">https://www.baidu.com</span></p>
+    <!-- 密码验证区域 -->
+    <div class="auth-panel">
+        <input type="password" id="adminPwd" placeholder="输入管理员密码">
+        <button onclick="verifyAdmin()">验证身份</button>
+    </div>
+
+    <!-- 自定义设置面板（默认隐藏） -->
+    <div class="setting-panel" id="settingPanel">
+        <input type="text" id="imgUrl" placeholder="输入图片链接（http/https开头）">
+        <input type="text" id="jumpUrl" placeholder="输入跳转网址（http/https开头）">
+        <div class="setting-btn-group">
+            <button class="confirm-btn" onclick="saveSetting()">保存设置</button>
+            <button class="reset-btn" onclick="resetSetting()">恢复默认</button>
         </div>
     </div>
 
+    <!-- 跳转图片区域 -->
+    <a id="jumpLink" target="_blank">
+        <img src="https://picsum.photos/800/450" 
+             alt="点击立即跳转" 
+             class="jump-img" 
+             id="targetImg">
+    </a>
+
     <script>
-        // 获取DOM元素
-        const clickableImage = document.getElementById('clickable-image');
-        const imageLink = document.getElementById('image-link');
-        const imageUrlInput = document.getElementById('image-url');
-        const imageUploadInput = document.getElementById('image-upload');
-        const targetUrlInput = document.getElementById('target-url');
-        const updateBtn = document.getElementById('update-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const statusMessage = document.getElementById('status-message');
-        const currentImageUrl = document.getElementById('current-image-url');
-        const currentTargetUrl = document.getElementById('current-target-url');
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        // 默认设置
-        const defaultSettings = {
-            imageUrl: 'https://via.placeholder.com/600x300/4a90e2/ffffff?text=点击我跳转到百度',
-            targetUrl: 'https://www.baidu.com'
+        // 管理员密码（已修改为更安全的组合）
+        const ADMIN_PASSWORD = "HongFei@2024";
+        // 默认配置（已更新默认图片和跳转网址）
+        const DEFAULT_CONFIG = {
+            imgUrl: "https://picsum.photos/800/450", // 随机风景图链接
+            jumpUrl: "https://www.baidu.com" // 默认跳转百度
         };
-        
-        // 初始化函数
-        function init() {
-            // 尝试从本地存储加载设置
-            const savedSettings = localStorage.getItem('imageLinkSettings');
-            
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                applySettings(settings);
+
+        // 页面加载时读取本地存储的配置
+        window.onload = function() {
+            loadSetting();
+        };
+
+        // 验证管理员身份
+        function verifyAdmin() {
+            const inputPwd = document.getElementById("adminPwd").value;
+            const settingPanel = document.getElementById("settingPanel");
+            if (inputPwd === ADMIN_PASSWORD) {
+                settingPanel.style.display = "flex";
+                alert("验证成功！可进行自定义配置");
             } else {
-                applySettings(defaultSettings);
+                alert("密码错误，仅管理员可修改配置");
             }
-            
-            // 更新当前设置显示
-            updateCurrentSettings();
         }
-        
-        // 应用设置
-        function applySettings(settings) {
-            clickableImage.src = settings.imageUrl;
-            imageLink.href = settings.targetUrl;
-            imageUrlInput.value = settings.imageUrl;
-            targetUrlInput.value = settings.targetUrl;
+
+        // 读取本地存储的配置并应用
+        function loadSetting() {
+            const savedConfig = localStorage.getItem("jumpConfig");
+            const config = savedConfig ? JSON.parse(savedConfig) : DEFAULT_CONFIG;
+            document.getElementById("targetImg").src = config.imgUrl;
+            document.getElementById("jumpLink").href = config.jumpUrl;
+            // 填充到输入框（方便管理员修改）
+            document.getElementById("imgUrl").value = config.imgUrl;
+            document.getElementById("jumpUrl").value = config.jumpUrl;
         }
-        
-        // 更新当前设置显示
-        function updateCurrentSettings() {
-            currentImageUrl.textContent = clickableImage.src;
-            currentTargetUrl.textContent = imageLink.href;
-        }
-        
-        // 保存设置到本地存储
-        function saveSettings() {
-            const settings = {
-                imageUrl: clickableImage.src,
-                targetUrl: targetUrlInput.value
-            };
-            
-            localStorage.setItem('imageLinkSettings', JSON.stringify(settings));
-        }
-        
-        // 显示状态消息
-        function showStatus(message, isSuccess) {
-            statusMessage.textContent = message;
-            statusMessage.className = isSuccess ? 'status-message success' : 'status-message error';
-            statusMessage.style.display = 'block';
-            
-            setTimeout(() => {
-                statusMessage.style.display = 'none';
-            }, 3000);
-        }
-        
-        // 处理本地图片上传
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            if (!file.type.match('image.*')) {
-                showStatus('请选择图片文件！', false);
+
+        // 保存自定义配置
+        function saveSetting() {
+            const imgUrl = document.getElementById("imgUrl").value.trim();
+            const jumpUrl = document.getElementById("jumpUrl").value.trim();
+            if (!imgUrl || !jumpUrl) {
+                alert("图片链接和跳转网址不能为空，请补充完整");
                 return;
             }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                clickableImage.src = e.target.result;
-                updateCurrentSettings();
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // 更新按钮点击事件
-        updateBtn.addEventListener('click', function() {
-            if (!targetUrlInput.value) {
-                showStatus('请填写目标网站链接！', false);
+            // 验证网址格式（简单校验）
+            const urlReg = /^https?:\/\/.+/;
+            if (!urlReg.test(jumpUrl) || (!urlReg.test(imgUrl) && !imgUrl.startsWith("data:image/"))) {
+                alert("请输入有效的http/https链接，或base64格式图片");
                 return;
             }
-            
-            // 更新链接
-            imageLink.href = targetUrlInput.value;
-            
-            // 保存设置
-            saveSettings();
-            
-            // 更新当前设置显示
-            updateCurrentSettings();
-            
-            showStatus('设置已更新！', true);
-        });
-        
-        // 重置按钮点击事件
-        resetBtn.addEventListener('click', function() {
-            if (confirm('确定要重置为默认设置吗？')) {
-                applySettings(defaultSettings);
-                imageUploadInput.value = '';
-                saveSettings();
-                updateCurrentSettings();
-                showStatus('已重置为默认设置！', true);
+            // 保存到本地存储
+            const config = { imgUrl, jumpUrl };
+            localStorage.setItem("jumpConfig", JSON.stringify(config));
+            // 立即应用配置
+            document.getElementById("targetImg").src = imgUrl;
+            document.getElementById("jumpLink").href = jumpUrl;
+            alert("配置保存成功！页面已更新");
+        }
+
+        // 恢复默认配置
+        function resetSetting() {
+            if (confirm("确定要恢复默认配置吗？当前自定义设置将被清除")) {
+                localStorage.removeItem("jumpConfig");
+                loadSetting();
+                alert("已成功恢复默认配置");
             }
-        });
-        
-        // 图片加载错误处理
-        clickableImage.addEventListener('error', function() {
-            showStatus('图片加载失败，请检查图片链接是否正确！', false);
-        });
-        
-        // 本地图片上传事件
-        imageUploadInput.addEventListener('change', handleImageUpload);
-        
-        // 网络图片链接输入事件
-        imageUrlInput.addEventListener('input', function() {
-            if (imageUrlInput.value) {
-                clickableImage.src = imageUrlInput.value;
-                updateCurrentSettings();
-            }
-        });
-        
-        // 标签页切换
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
-                
-                // 更新标签页状态
-                tabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                // 更新内容显示
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === `${tabId}-tab`) {
-                        content.classList.add('active');
-                    }
-                });
-            });
-        });
-        
-        // 初始化页面
-        init();
+        }
     </script>
 </body>
 </html>
