@@ -3,562 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一键跳转页面</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background-color: #f8f9fa;
-            text-align: center;
-            padding: 30px 20px;
-            font-family: "Microsoft YaHei", sans-serif;
-            position: relative;
-        }
-        /* 管理员按钮 - 右上角样式 */
-        .admin-entry {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 100;
-        }
-        .admin-btn {
-            padding: 6px 12px;
-            background-color: #495057;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .admin-btn:hover {
-            background-color: #343a40;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 7px rgba(0,0,0,0.15);
-        }
-        .admin-btn::before {
-            content: "🔐";
-        }
-        /* 文字编辑区域 */
-        .text-content {
-            margin: 20px auto;
-            padding: 20px;
-            min-height: 60px;
-            max-width: 800px;
-            word-wrap: break-word;
-            transition: all 0.3s ease;
-        }
-        /* 密码验证区域样式 */
-        .auth-panel {
-            margin: 10px auto 20px;
-            max-width: 450px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            align-items: center;
-            display: none;
-        }
-        .auth-panel input {
-            padding: 10px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            width: 250px;
-            font-size: 16px;
-        }
-        .auth-panel button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        .auth-panel button:hover {
-            background-color: #218838;
-        }
-        /* 修改密码区域 */
-        .change-pwd-panel {
-            margin: 10px auto 20px;
-            max-width: 500px;
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-        .change-pwd-panel input {
-            padding: 10px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            width: 100%;
-            font-size: 16px;
-        }
-        .change-pwd-panel button {
-            padding: 10px 20px;
-            background-color: #17a2b8;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        .change-pwd-panel button:hover {
-            background-color: #138496;
-        }
-        /* 自定义设置面板样式 */
-        .setting-panel {
-            max-width: 650px;
-            margin: 25px auto;
-            padding: 25px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
-            display: none;
-            gap: 20px;
-            flex-direction: column;
-        }
-        /* 文字设置区域 */
-        .text-setting {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        .text-setting input, .text-setting select {
-            padding: 10px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        .setting-panel input {
-            padding: 12px 15px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        /* 图片上传区域 */
-        .image-upload {
-            margin: 15px 0;
-        }
-        .upload-btn {
-            padding: 8px 16px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-            margin-right: 10px;
-        }
-        .upload-btn:hover {
-            background-color: #5a6268;
-        }
-        .upload-info {
-            font-size: 13px;
-            color: #6c757d;
-            margin-top: 8px;
-            display: inline-block;
-        }
-        #fileInput {
-            display: none;
-        }
-        .preview-container {
-            margin: 15px 0;
-            max-width: 100%;
-            display: none;
-        }
-        .preview-img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 6px;
-            border: 1px solid #dee2e6;
-            padding: 5px;
-        }
-        /* 按钮组样式 */
-        .setting-btn-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .setting-btn-group button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        .confirm-btn {
-            background-color: #007bff;
-            color: white;
-        }
-        .confirm-btn:hover {
-            background-color: #0069d9;
-        }
-        .reset-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-        .reset-btn:hover {
-            background-color: #c82333;
-        }
-        /* 跳转图片样式 */
-        .jump-img {
-            max-width: 75%;
-            height: auto;
-            margin: 40px auto;
-            cursor: pointer;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.15);
-            transition: transform 0.3s;
-        }
-        .jump-img:hover {
-            transform: scale(1.02);
-        }
-        /* 功能按钮区域 */
-        .function-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 10px 0;
-            display: none;
-        }
-        .function-buttons button {
-            padding: 8px 15px;
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        .function-buttons button:hover {
-            background-color: #5a6268;
-            transform: translateY(-1px);
-        }
-        /* 面板标题样式 */
-        .panel-title {
-            color: #343a40;
-            margin-bottom: 10px;
-            font-size: 18px;
-            border-bottom: 1px solid #e9ecef;
-            padding-bottom: 8px;
-        }
-    </style>
+    <title>图片跳转工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <!-- 管理员入口 - 右上角 -->
-    <div class="admin-entry">
-        <button class="admin-btn" onclick="showAuthPanel()">管理员</button>
-    </div>
-    
-    <!-- 功能按钮区域（验证后显示） -->
-    <div class="function-buttons" id="functionButtons">
-        <button onclick="showSettingPanel()">修改配置</button>
-        <button onclick="showChangePwdPanel()">修改密码</button>
+<body class="bg-gray-100 p-5">
+    <!-- 管理员按钮 -->
+    <button id="adminBtn" class="fixed top-5 right-5 bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-700 transition">管理员</button>
+
+    <!-- 主展示区域 -->
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <!-- 文字显示区 -->
+        <div id="textDisplay" class="text-center mb-4 text-2xl text-black">默认展示文字</div>
+        <!-- 图片跳转区 -->
+        <a id="imageLink" href="https://www.baidu.com" target="_blank" class="block text-center">
+            <img id="displayImage" src="https://picsum.photos/600/400" alt="跳转图片" class="mx-auto w-96 h-64 object-cover rounded-md cursor-pointer">
+        </a>
     </div>
 
-    <!-- 密码验证区域（默认隐藏） -->
-    <div class="auth-panel" id="authPanel">
-        <input type="password" id="adminPwd" placeholder="输入管理员密码">
-        <button onclick="verifyAdmin()">验证身份</button>
-    </div>
-
-    <!-- 修改密码区域（默认隐藏） -->
-    <div class="change-pwd-panel" id="changePwdPanel">
-        <h3 class="panel-title">修改管理员密码</h3>
-        <input type="password" id="oldPwd" placeholder="输入旧密码">
-        <input type="password" id="newPwd" placeholder="输入新密码（至少6位）">
-        <input type="password" id="confirmPwd" placeholder="确认新密码">
-        <button onclick="changePassword()">确认修改</button>
-    </div>
-
-    <!-- 文字编辑区域 -->
-    <div class="text-content" id="textContent" contenteditable="false">
-        点击此处可编辑文字内容
-    </div>
-
-    <!-- 自定义设置面板（默认隐藏） -->
-    <div class="setting-panel" id="settingPanel">
-        <!-- 文字设置 -->
-        <div>
-            <h3 class="panel-title">文字设置</h3>
-            <div class="text-setting">
-                <input type="text" id="textContentInput" placeholder="输入文字内容">
-                <input type="number" id="fontSize" min="12" max="72" value="16" placeholder="字体大小">
-                <input type="color" id="fontColor" value="#000000">
-                <button class="confirm-btn" onclick="applyTextSettings()">应用文字设置</button>
+    <!-- 管理员密码弹窗 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg w-80">
+            <h3 class="text-xl font-bold mb-4 text-center">管理员验证</h3>
+            <input type="password" id="adminPassword" placeholder="输入管理员密码" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+            <div class="flex gap-3">
+                <button id="verifyBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">验证</button>
+                <button id="closePasswordModal" class="flex-1 bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400 transition">取消</button>
             </div>
+            <p id="passwordError" class="text-red-500 text-center mt-3 hidden">密码错误，请重试</p>
         </div>
-        
-        <!-- 图片和跳转设置 -->
-        <div>
-            <h3 class="panel-title">图片和跳转设置</h3>
-            <input type="text" id="imgUrl" placeholder="输入图片链接（http/https开头）">
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div id="editModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold mb-4 text-center">编辑设置</h3>
             
-            <!-- 图片上传区域 -->
-            <div class="image-upload">
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">上传本地图片</button>
-                <input type="file" id="fileInput" accept="image/*">
-                <span class="upload-info">支持JPG、PNG等常见图片格式</span>
-                
-                <!-- 图片预览区域 -->
-                <div class="preview-container" id="previewContainer">
-                    <img src="" alt="预览图" class="preview-img" id="previewImg">
+            <!-- 文字设置 -->
+            <div class="mb-5">
+                <h4 class="font-semibold mb-2">文字设置</h4>
+                <input type="text" id="editText" placeholder="输入显示文字" class="w-full p-2 border border-gray-300 rounded-md mb-2">
+                <div class="flex gap-2 mb-2">
+                    <input type="number" id="fontSize" min="12" max="48" placeholder="字体大小(px)" class="flex-1 p-2 border border-gray-300 rounded-md">
+                    <input type="color" id="fontColor" class="w-10 h-10 p-0 border-0 rounded-md">
                 </div>
             </div>
-            
-            <input type="text" id="jumpUrl" placeholder="输入跳转网址（http/https开头）">
-        </div>
-        
-        <div class="setting-btn-group">
-            <button class="confirm-btn" onclick="saveSetting()">保存设置</button>
-            <button class="reset-btn" onclick="resetSetting()">恢复默认</button>
+
+            <!-- 图片设置 -->
+            <div class="mb-5">
+                <h4 class="font-semibold mb-2">图片设置</h4>
+                <input type="file" id="imageUpload" accept="image/*" class="w-full p-2 border border-gray-300 rounded-md mb-2">
+                <div class="flex gap-2 mb-2">
+                    <input type="number" id="imgWidth" min="100" max="800" placeholder="图片宽度(px)" class="flex-1 p-2 border border-gray-300 rounded-md">
+                    <input type="number" id="imgHeight" min="100" max="800" placeholder="图片高度(px)" class="flex-1 p-2 border border-gray-300 rounded-md">
+                </div>
+                <img id="previewImage" alt="预览图片" class="w-full h-40 object-cover rounded-md mb-2 hidden">
+            </div>
+
+            <!-- 跳转设置 -->
+            <div class="mb-5">
+                <h4 class="font-semibold mb-2">跳转设置</h4>
+                <input type="url" id="targetUrl" placeholder="输入跳转网址" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+
+            <!-- 修改密码 -->
+            <div class="mb-5 border-t pt-4">
+                <h4 class="font-semibold mb-2">修改密码</h4>
+                <input type="password" id="oldPwd" placeholder="输入旧密码" class="w-full p-2 border border-gray-300 rounded-md mb-2">
+                <input type="password" id="newPwd" placeholder="输入新密码(≥6位)" class="w-full p-2 border border-gray-300 rounded-md mb-2">
+                <input type="password" id="confirmPwd" placeholder="确认新密码" class="w-full p-2 border border-gray-300 rounded-md">
+                <p id="pwdError" class="text-red-500 text-sm mt-2 hidden">密码不一致或旧密码错误</p>
+                <p id="pwdSuccess" class="text-green-500 text-sm mt-2 hidden">密码修改成功</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="saveBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">保存设置</button>
+                <button id="closeEditModal" class="flex-1 bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400 transition">取消</button>
+            </div>
         </div>
     </div>
 
-    <!-- 跳转图片区域 -->
-    <a id="jumpLink" target="_blank">
-        <img src="https://picsum.photos/800/450" 
-             alt="点击立即跳转" 
-             class="jump-img" 
-             id="targetImg">
-    </a>
-
     <script>
-        // 从本地存储获取管理员密码，默认为初始密码
-        let ADMIN_PASSWORD = localStorage.getItem("adminPassword") || "HongFei@2024";
-        // 默认配置
-        const DEFAULT_CONFIG = {
-            imgUrl: "https://picsum.photos/800/450",
-            jumpUrl: "https://www.baidu.com",
-            textContent: "点击此处可编辑文字内容",
-            fontSize: 16,
-            fontColor: "#000000"
+        // 初始数据（本地存储）
+        let appData = JSON.parse(localStorage.getItem('imageLinkApp')) || {
+            text: '默认展示文字',
+            fontSize: 24,
+            fontColor: '#000000',
+            imageUrl: 'https://picsum.photos/600/400',
+            imgWidth: 600,
+            imgHeight: 400,
+            targetUrl: 'https://www.baidu.com',
+            password: 'admin123'
         };
 
-        // 页面加载时读取本地存储的配置
-        window.onload = function() {
-            loadSetting();
-            // 绑定文件上传事件
-            document.getElementById("fileInput").addEventListener("change", handleFileUpload);
-        };
+        // DOM元素
+        const adminBtn = document.getElementById('adminBtn');
+        const passwordModal = document.getElementById('passwordModal');
+        const editModal = document.getElementById('editModal');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const closePasswordModal = document.getElementById('closePasswordModal');
+        const closeEditModal = document.getElementById('closeEditModal');
+        const saveBtn = document.getElementById('saveBtn');
+        const adminPassword = document.getElementById('adminPassword');
+        const passwordError = document.getElementById('passwordError');
+        const textDisplay = document.getElementById('textDisplay');
+        const displayImage = document.getElementById('displayImage');
+        const imageLink = document.getElementById('imageLink');
+        const editText = document.getElementById('editText');
+        const fontSize = document.getElementById('fontSize');
+        const fontColor = document.getElementById('fontColor');
+        const imageUpload = document.getElementById('imageUpload');
+        const imgWidth = document.getElementById('imgWidth');
+        const imgHeight = document.getElementById('imgHeight');
+        const previewImage = document.getElementById('previewImage');
+        const targetUrl = document.getElementById('targetUrl');
+        const oldPwd = document.getElementById('oldPwd');
+        const newPwd = document.getElementById('newPwd');
+        const confirmPwd = document.getElementById('confirmPwd');
+        const pwdError = document.getElementById('pwdError');
+        const pwdSuccess = document.getElementById('pwdSuccess');
 
-        // 处理文件上传
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            // 检查文件类型
-            if (!file.type.startsWith('image/')) {
-                alert("请选择图片文件");
-                return;
-            }
-            
-            // 检查文件大小（限制10MB以内）
-            if (file.size > 10 * 1024 * 1024) {
-                alert("图片大小不能超过10MB");
-                return;
-            }
-            
-            // 读取文件并显示预览
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const previewContainer = document.getElementById("previewContainer");
-                const previewImg = document.getElementById("previewImg");
-                const imgUrlInput = document.getElementById("imgUrl");
-                
-                // 显示预览
-                previewImg.src = e.target.result;
-                previewContainer.style.display = "block";
-                
-                // 将base64编码填入图片链接输入框
-                imgUrlInput.value = e.target.result;
-            };
-            reader.readAsDataURL(file);
+        // 初始化页面
+        function initPage() {
+            textDisplay.textContent = appData.text;
+            textDisplay.style.fontSize = `${appData.fontSize}px`;
+            textDisplay.style.color = appData.fontColor;
+            displayImage.src = appData.imageUrl;
+            displayImage.style.width = `${appData.imgWidth}px`;
+            displayImage.style.height = `${appData.imgHeight}px`;
+            imageLink.href = appData.targetUrl;
         }
 
-        // 显示密码验证面板
-        function showAuthPanel() {
-            document.getElementById("authPanel").style.display = "flex";
-            document.getElementById("changePwdPanel").style.display = "none";
-            document.getElementById("settingPanel").style.display = "none";
+        // 初始化编辑表单
+        function initEditForm() {
+            editText.value = appData.text;
+            fontSize.value = appData.fontSize;
+            fontColor.value = appData.fontColor;
+            imgWidth.value = appData.imgWidth;
+            imgHeight.value = appData.imgHeight;
+            targetUrl.value = appData.targetUrl;
+            previewImage.src = appData.imageUrl;
+            previewImage.classList.remove('hidden');
+            // 重置密码相关
+            oldPwd.value = '';
+            newPwd.value = '';
+            confirmPwd.value = '';
+            pwdError.classList.add('hidden');
+            pwdSuccess.classList.add('hidden');
         }
 
-        // 显示设置面板
-        function showSettingPanel() {
-            document.getElementById("settingPanel").style.display = "flex";
-            document.getElementById("authPanel").style.display = "none";
-            document.getElementById("changePwdPanel").style.display = "none";
+        // 保存数据到本地存储
+        function saveData() {
+            localStorage.setItem('imageLinkApp', JSON.stringify(appData));
         }
 
-        // 显示修改密码面板
-        function showChangePwdPanel() {
-            document.getElementById("changePwdPanel").style.display = "flex";
-            document.getElementById("authPanel").style.display = "none";
-            document.getElementById("settingPanel").style.display = "none";
-        }
+        // 事件监听
+        adminBtn.addEventListener('click', () => {
+            passwordModal.classList.remove('hidden');
+            adminPassword.value = '';
+            passwordError.classList.add('hidden');
+        });
 
-        // 验证管理员身份
-        function verifyAdmin() {
-            const inputPwd = document.getElementById("adminPwd").value;
-            if (inputPwd === ADMIN_PASSWORD) {
-                document.getElementById("functionButtons").style.display = "flex";
-                document.getElementById("authPanel").style.display = "none";
-                // 管理员可编辑文字
-                document.getElementById("textContent").contentEditable = true;
-                document.getElementById("textContent").style.outline = "1px dashed #007bff";
-                alert("验证成功！可进行自定义配置");
+        closePasswordModal.addEventListener('click', () => {
+            passwordModal.classList.add('hidden');
+        });
+
+        closeEditModal.addEventListener('click', () => {
+            editModal.classList.add('hidden');
+        });
+
+        // 密码验证
+        verifyBtn.addEventListener('click', () => {
+            if (adminPassword.value === appData.password) {
+                passwordModal.classList.add('hidden');
+                editModal.classList.remove('hidden');
+                initEditForm();
             } else {
-                alert("密码错误，仅管理员可修改配置");
+                passwordError.classList.remove('hidden');
             }
-        }
+        });
 
-        // 修改密码
-        function changePassword() {
-            const oldPwd = document.getElementById("oldPwd").value;
-            const newPwd = document.getElementById("newPwd").value;
-            const confirmPwd = document.getElementById("confirmPwd").value;
+        // 图片上传预览
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImage.src = event.target.result;
+                    previewImage.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
-            if (oldPwd !== ADMIN_PASSWORD) {
-                alert("旧密码不正确");
-                return;
+        // 保存设置
+        saveBtn.addEventListener('click', () => {
+            // 更新基础设置
+            appData.text = editText.value.trim() || appData.text;
+            appData.fontSize = parseInt(fontSize.value) || appData.fontSize;
+            appData.fontColor = fontColor.value || appData.fontColor;
+            appData.imgWidth = parseInt(imgWidth.value) || appData.imgWidth;
+            appData.imgHeight = parseInt(imgHeight.value) || appData.imgHeight;
+            appData.targetUrl = targetUrl.value.trim() || appData.targetUrl;
+
+            // 更新图片（如果有新上传）
+            if (previewImage.src !== appData.imageUrl && previewImage.src) {
+                appData.imageUrl = previewImage.src;
             }
 
-            if (newPwd.length < 6) {
-                alert("新密码长度不能少于6位");
-                return;
+            // 处理密码修改
+            if (oldPwd.value) {
+                if (oldPwd.value !== appData.password) {
+                    pwdError.classList.remove('hidden');
+                    pwdSuccess.classList.add('hidden');
+                    return;
+                }
+                if (newPwd.value !== confirmPwd.value || newPwd.value.length < 6) {
+                    pwdError.classList.remove('hidden');
+                    pwdSuccess.classList.add('hidden');
+                    return;
+                }
+                appData.password = newPwd.value;
+                pwdSuccess.classList.remove('hidden');
+                pwdError.classList.add('hidden');
             }
 
-            if (newPwd !== confirmPwd) {
-                alert("两次输入的新密码不一致");
-                return;
-            }
+            // 保存并刷新页面
+            saveData();
+            initPage();
+            setTimeout(() => {
+                editModal.classList.add('hidden');
+            }, 1000);
+        });
 
-            // 保存新密码
-            ADMIN_PASSWORD = newPwd;
-            localStorage.setItem("adminPassword", newPwd);
-            
-            // 清空输入框
-            document.getElementById("oldPwd").value = "";
-            document.getElementById("newPwd").value = "";
-            document.getElementById("confirmPwd").value = "";
-            
-            alert("密码修改成功，请使用新密码登录");
-            showAuthPanel();
-            document.getElementById("functionButtons").style.display = "none";
-            document.getElementById("textContent").contentEditable = false;
-            document.getElementById("textContent").style.outline = "none";
-        }
-
-        // 应用文字设置
-        function applyTextSettings() {
-            const textContent = document.getElementById("textContentInput").value;
-            const fontSize = document.getElementById("fontSize").value;
-            const fontColor = document.getElementById("fontColor").value;
-            
-            const textElement = document.getElementById("textContent");
-            
-            if (textContent) {
-                textElement.textContent = textContent;
-            }
-            if (fontSize) {
-                textElement.style.fontSize = `${fontSize}px`;
-            }
-            textElement.style.color = fontColor;
-            
-            // 更新输入框的值
-            document.getElementById("textContentInput").value = textElement.textContent;
-        }
-
-        // 读取本地存储的配置并应用
-        function loadSetting() {
-            const savedConfig = localStorage.getItem("jumpConfig");
-            const config = savedConfig ? JSON.parse(savedConfig) : DEFAULT_CONFIG;
-            
-            // 应用图片和跳转配置
-            document.getElementById("targetImg").src = config.imgUrl;
-            document.getElementById("jumpLink").href = config.jumpUrl;
-            
-            // 应用文字配置
-            const textElement = document.getElementById("textContent");
-            textElement.textContent = config.textContent;
-            textElement.style.fontSize = `${config.fontSize}px`;
-            textElement.style.color = config.fontColor;
-            
-            // 填充到输入框
-            document.getElementById("imgUrl").value = config.imgUrl;
-            document.getElementById("jumpUrl").value = config.jumpUrl;
-            document.getElementById("textContentInput").value = config.textContent;
-            document.getElementById("fontSize").value = config.fontSize;
-            document.getElementById("fontColor").value = config.fontColor;
-        }
-
-        // 保存自定义配置
-        function saveSetting() {
-            const imgUrl = document.getElementById("imgUrl").value.trim();
-            const jumpUrl = document.getElementById("jumpUrl").value.trim();
-            const textContent = document.getElementById("textContent").textContent;
-            const fontSize = document.getElementById("fontSize").value;
-            const fontColor = document.getElementById("fontColor").value;
-            
-            if (!imgUrl || !jumpUrl) {
-                alert("图片链接和跳转网址不能为空，请补充完整");
-                return;
-            }
-            
-            // 验证网址格式（图片可以是base64格式）
-            const urlReg = /^https?:\/\/.+/;
-            if (!urlReg.test(jumpUrl) && !(urlReg.test(imgUrl) || imgUrl.startsWith("data:image/"))) {
-                alert("请输入有效的http/https链接，或base64格式图片");
-                return;
-            }
-            
-            // 保存到本地存储
-            const config = { 
-                imgUrl, 
-                jumpUrl,
-                textContent,
-                fontSize,
-                fontColor
-            };
-            localStorage.setItem("jumpConfig", JSON.stringify(config));
-            
-            // 立即应用配置
-            document.getElementById("targetImg").src = imgUrl;
-            document.getElementById("jumpLink").href = jumpUrl;
-            document.getElementById("textContent").style.fontSize = `${fontSize}px`;
-            document.getElementById("textContent").style.color = fontColor;
-            
-            alert("配置保存成功！页面已更新");
-        }
-
-        // 恢复默认配置
-        function resetSetting() {
-            if (confirm("确定要恢复默认配置吗？当前自定义设置将被清除")) {
-                localStorage.removeItem("jumpConfig");
-                // 重置预览区域
-                document.getElementById("previewContainer").style.display = "none";
-                document.getElementById("previewImg").src = "";
-                document.getElementById("fileInput").value = "";
-                loadSetting();
-                alert("已成功恢复默认配置");
-            }
-        }
+        // 初始化
+        initPage();
     </script>
 </body>
 </html>
